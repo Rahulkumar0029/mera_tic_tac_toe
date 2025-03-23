@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>❤️ Heart Tic-Tac-Toe ❤️</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            transition: background 1s;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .game-container {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #6a1b9a;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        select,
+        button {
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        button {
+            background: #7b1fa2;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #6a1b9a;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 10px;
+            margin: 20px auto;
+            justify-content: center;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            border: 3px solid #6a1b9a;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .winner {
+            margin: 10px 0;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        #restartBtn {
+            margin-top: 15px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <h1>❤️ Heart Tic-Tac-Toe ❤️</h1>
+        <div class="controls">
+            <label>Player 1: <select id="p1Heart" onchange="updateHeartOptions()"></select></label>
+            <label>Player 2: <select id="p2Heart" onchange="updateHeartOptions()"></select></label>
+            <label>Theme:
+                <select id="themeSelect" onchange="changeTheme()">
+                    <option value="love">Gradient Love</option>
+                    <option value="night">Starry Night</option>
+                    <option value="blossom">Cherry Blossom</option>
+                </select>
+            </label>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+        <div class="grid" id="board"></div>
+        <p class="winner" id="winnerMessage"></p>
+        <button id="restartBtn" style="display:none;" onclick="startGame()">Restart Game</button>
+    </div>
+
+    <script>
+        const heartTypes = ["❤", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟",
+            "❣", "💔", "🩷", "🩵", "🩶", "💫", "🌟", "⭐", "✨", "🔥", "🌈", "⚡", "☀", "🌞", "🌝", "🌚", "🌛",
+            "🌜", "🌸", "🌹", "🌺", "🌻", "🌼", "🌷", "🍀", "🍁", "🍂", "🍃", "🌾", "🌿", "🪴", "🌵", "🎋", "🎄",
+            "🎍", "🕊", "🦋", "🐞", "🐝", "🪲", "🐛", "🦄", "🐶", "🐱", "🦊", "🐰", "🦢", "🦉", "🦚", "🦜", "🐥",
+            "🦩", "🦇", "🐬", "🐳", "🐋", "🦈", "🐊", "🦓", "🐅", "🦒", "🐘", "🦏", "🦛", "🐪", "🐫", "🦙", "🦘",
+            "🐃", "🦬", "🦡", "🦦", "🦥", "🦨", "🦎", "🐍", "🦖", "🦕", "🐉", "🐲", "🌋", "🏔", "🗻", "⛰", "🏜", "🏖",
+            "🌅", "🌄", "🌠", "🎇", "🎆", "🌌", "🌃", "🎑", "🌉"];
+        let grid = Array(9).fill("");
+        let player1, player2, currentPlayer, gameOver = false;
+        let placedHearts = {};
+        let selectedCell = null;
+
+        function populateSelects() {
+            const p1Select = document.getElementById('p1Heart');
+            const p2Select = document.getElementById('p2Heart');
+            heartTypes.forEach(h => {
+                p1Select.innerHTML += `<option value="${h}">${h}</option>`;
+                p2Select.innerHTML += `<option value="${h}">${h}</option>`;
+            });
+            p1Select.selectedIndex = 0;
+            p2Select.selectedIndex = 1;
+            changeTheme(); // Set default theme to Gradient Love
+        }
+
+        function updateHeartOptions() {
+            const p1Select = document.getElementById('p1Heart');
+            const p2Select = document.getElementById('p2Heart');
+            const p1Value = p1Select.value;
+            const p2Value = p2Select.value;
+            p1Select.innerHTML = '';
+            p2Select.innerHTML = '';
+            heartTypes.forEach(h => {
+                if (h !== p2Value) p1Select.innerHTML += `<option value="${h}" ${h === p1Value ? 'selected' : ''}>${h}</option>`;
+                if (h !== p1Value) p2Select.innerHTML += `<option value="${h}" ${h === p2Value ? 'selected' : ''}>${h}</option>`;
+            });
+        }
+
+        function changeTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            const backgrounds = {
+                love: "linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4)",
+                night: "url('https://images.unsplash.com/photo-1549880338-65ddcdfd017b?auto=format&fit=crop&w=1350&q=80')",
+                blossom: "url('https://images.unsplash.com/photo-1528372444006-1bfc81acab77?auto=format&fit=crop&w=1350&q=80')"
+            };
+            document.body.style.background = backgrounds[theme];
+        }
+
+        function startGame() {
+            player1 = document.getElementById('p1Heart').value;
+            player2 = document.getElementById('p2Heart').value;
+            currentPlayer = player1;
+            placedHearts = { [player1]: 0, [player2]: 0 };
+            grid.fill("");
+            gameOver = false;
+            selectedCell = null;
+            document.getElementById('winnerMessage').innerText = '';
+            document.getElementById('restartBtn').style.display = 'none';
+            drawBoard();
+        }
+
+        function drawBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            grid.forEach((cell, index) => {
+                const div = document.createElement('div');
+                div.classList.add('cell');
+                div.innerText = cell;
+                div.onclick = () => handleCellClick(index);
+                board.appendChild(div);
+            });
+        }
+
+        function handleCellClick(index) {
+            if (gameOver) return;
+
+            if (selectedCell !== null && grid[index] === "") {
+                if (isValidMove(selectedCell, index)) {
+                    grid[index] = currentPlayer;
+                    grid[selectedCell] = "";
+                    selectedCell = null;
+                    drawBoard();
+                    if (checkWin()) endGame(`${currentPlayer} Wins!`);
+                    else switchPlayer();
+                }
+            } else if (grid[index] === currentPlayer) {
+                selectedCell = index;
+            } else if (grid[index] === "" && placedHearts[currentPlayer] < 3) {
+                grid[index] = currentPlayer;
+                placedHearts[currentPlayer]++;
+                drawBoard();
+                if (checkWin()) endGame(`${currentPlayer} Wins!`);
+                else switchPlayer();
+            }
+        }
+
+        function isValidMove(from, to) {
+            const adjacentMoves = [
+                [0, 1], [0, 3], [0, 4], // from cell 0
+                [1, 0], [1, 2], [1, 4], // from cell 1
+                [2, 1], [2, 5], [2, 4], // from cell 2
+                [3, 0], [3, 4], [3, 6], // from cell 3
+                [4, 0], [4, 1], [4, 2], [4, 3], [4, 5], [4, 6], [4, 7], [4, 8], // from cell 4
+                [5, 2], [5, 4], [5, 8], // from cell 5
+                [6, 3], [6, 4], [6, 7], // from cell 6
+                [7, 4], [7, 6], [7, 8], // from cell 7
+                [8, 5], [8, 7], [8, 4]  // from cell 8
+            ];
+
+            // Check if the move is valid
+            return adjacentMoves.some(move => (move[0] === from && move[1] === to) || (move[1] === from && move[0] === to));
+        }
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === player1 ? player2 : player1;
+        }
+
+        function checkWin() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            if (winPatterns.some(pattern => pattern.every(i => grid[i] === currentPlayer))) {
+                return true;
+            }
+            // Check for draw
+            if (grid.every(cell => cell !== "")) {
+                endGame("It's a Draw!");
+                return false;
+            }
+            return false;
+        }
+
+        function endGame(message) {
+            document.getElementById('winnerMessage').innerText = message;
+            document.getElementById('restartBtn').style.display = 'block';
+            gameOver = true;
+        }
+
+        populateSelects();
+    </script>
+</body>
+
+</html>
