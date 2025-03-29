@@ -3,13 +3,14 @@ body {
   text-align: center; /* Ensures all text elements are centered */
 }
 
-.title {
-  color: #5C6AC4;
-  font-size: 2em;
-  font-weight: bold;
+  .title {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  gap: 8px; /* Adjust spacing between the heart and text */
+  font-size: 2em;
+  font-weight: bold;
+  color: #5C6AC4;
   text-align: center;
 }
+
