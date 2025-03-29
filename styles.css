@@ -4,3 +4,15 @@ body{
 .title {
 	color: #5C6AC4;
 }
+
+h1 {
+    color: #6a1b9a;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.8em; /* Adjust size for better mobile view */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
