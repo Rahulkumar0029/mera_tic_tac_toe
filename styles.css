@@ -1,8 +1,15 @@
-body{
+body {
   padding: 25px;
+  text-align: center; /* Ensures all text elements are centered */
 }
+
 .title {
-	color: #5C6AC4;
+  color: #5C6AC4;
+  font-size: 2em;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
 }
-
-
